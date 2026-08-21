@@ -145,7 +145,7 @@
                     </div>
                     <div class="flex flex-col items-end space-y-1">
                         <span class="px-2 py-0.5 rounded-full text-[8px] bg-emerald-950/40 text-emerald-400 font-extrabold border border-emerald-900/30 uppercase tracking-widest">ACTIVE</span>
-                        <div class="w-2 h-2 rounded-full bg-purple-500/40 animate-ping"></div>
+                        <div class="w-2.5 h-2.5 bg-purple-500/40 animate-ping rounded-full"></div>
                     </div>
                 </button>
 
@@ -159,7 +159,7 @@
                     </div>
                     <div class="flex flex-col items-end space-y-1">
                         <span class="px-2 py-0.5 rounded-full text-[8px] bg-purple-950/40 text-purple-400 font-extrabold border border-purple-900/30 uppercase tracking-widest">MONITORING</span>
-                        <div class="w-2 h-2 rounded-full bg-purple-500/20"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-purple-500/20"></div>
                     </div>
                 </button>
 
@@ -173,7 +173,7 @@
                     </div>
                     <div class="flex flex-col items-end space-y-1">
                         <span class="px-2 py-0.5 rounded-full text-[8px] bg-purple-950/40 text-purple-400 font-extrabold border border-purple-900/30 uppercase tracking-widest">REVIEWING</span>
-                        <div class="w-2 h-2 rounded-full bg-purple-500/20"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-purple-500/20"></div>
                     </div>
                 </button>
 
@@ -187,7 +187,7 @@
                     </div>
                     <div class="flex flex-col items-end space-y-1">
                         <span class="px-2 py-0.5 rounded-full text-[8px] bg-purple-950/40 text-purple-400 font-extrabold border border-purple-900/30 uppercase tracking-widest">AUDITING</span>
-                        <div class="w-2 h-2 rounded-full bg-purple-500/20"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-purple-500/20"></div>
                     </div>
                 </button>
 
@@ -291,7 +291,7 @@
                 </div>
 
                 <!-- WebGL Interactive Canvas Area -->
-                <div class="flex-1 w-full relative" id="canvas-container">
+                <div class="flex-1 w-full relative min-h-[300px]" id="canvas-container">
                     <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
                         <!-- Holographic Floating HUD Nodes -->
                         <div class="absolute left-2 top-1/4 text-center space-y-1">
@@ -324,12 +324,12 @@
                         </div>
                     </div>
 
-                    <!-- THREE.JS WEBGL RENDER CANVAS -->
-                    <canvas id="threeCanvas" class="w-full h-full cursor-grab active:cursor-grabbing z-0"></canvas>
+                    <!-- THREE.JS WEBGL RENDER CANVAS - Positioned absolutely to fill parent container -->
+                    <canvas id="threeCanvas" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing z-0"></canvas>
                 </div>
 
                 <!-- Node active state indicator capsule -->
-                <div class="flex justify-center shrink-0">
+                <div class="flex justify-center shrink-0 animate-pulse">
                     <div class="bg-purple-950/40 border border-purple-500/20 backdrop-blur-md px-6 py-2 rounded-full flex items-center space-x-2 shadow-lg">
                         <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span>
                         <span class="text-[9px] font-black uppercase tracking-widest text-purple-200 mono-font" id="center-node-status-text">Thinking...</span>
@@ -457,7 +457,6 @@
 
     <!-- MAIN JAVASCRIPT ENGINE -->
     <script>
-        // High fidelity database mapping exactly to the sample dashboard widgets
         const agents = {
             jarvis: {
                 name: 'Jarvis',
@@ -470,7 +469,7 @@
                 center_metric: '8.3K',
                 calendar_title: 'Swarm Cron Jobs',
                 chartPoints: [45, 10, 35, 20, 28, 22, 34],
-                colorTheme: 0x8b5cf6, // Purple
+                colorTheme: 0x8b5cf6,
                 platforms: [
                     { name: 'IG', val: '24.1K', active: true, grow: '12.4%' },
                     { name: 'X', val: '18.7K', active: true, grow: '8.7%' },
@@ -500,7 +499,7 @@
                 center_metric: '2.4K',
                 calendar_title: 'Content Scheduler',
                 chartPoints: [10, 30, 20, 45, 15, 35, 50],
-                colorTheme: 0xf43f5e, // Rose
+                colorTheme: 0xf43f5e,
                 platforms: [
                     { name: 'IG', val: '24.1K', active: true, grow: '14.1%' },
                     { name: 'X', val: '18.7K', active: true, grow: '9.2%' },
@@ -530,7 +529,7 @@
                 center_metric: '1.2K',
                 calendar_title: 'Sprint Linear Board',
                 chartPoints: [30, 40, 25, 30, 48, 50, 45],
-                colorTheme: 0x10b981, // Emerald
+                colorTheme: 0x10b981,
                 platforms: [
                     { name: 'IG', val: 'Inactive', active: false, grow: '0%' },
                     { name: 'X', val: 'Online', active: true, grow: '100%' },
@@ -560,7 +559,7 @@
                 center_metric: '12 / 12',
                 calendar_title: 'CAQH Attestation Log',
                 chartPoints: [20, 25, 45, 50, 40, 42, 50],
-                colorTheme: 0xfbbf24, // Gold / Amber
+                colorTheme: 0xfbbf24,
                 platforms: [
                     { name: 'IG', val: 'N/A', active: false, grow: '0%' },
                     { name: 'X', val: 'N/A', active: false, grow: '0%' },
@@ -580,236 +579,161 @@
                 ]
             }
         };
-
         let currentAgentId = 'jarvis';
-
-        // Three.js Global Variables
         let scene, camera, renderer, crystal, crystalWireframe, particles, projectRings, controls;
-
-        // Initialize on DOM load
         window.addEventListener('DOMContentLoaded', () => {
             initThree();
             selectAgent(currentAgentId);
         });
-
-        // Initialize THREE.JS WEBGL RENDERER
         function initThree() {
             const container = document.getElementById('canvas-container');
             const canvas = document.getElementById('threeCanvas');
-
-            // 1. Setup Scene & Camera
+            let width = container.clientWidth || 400;
+            let height = container.clientHeight || 300;
+            if (height === 0) height = 300;
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-            camera.position.set(0, 3, 10);
-
-            // 2. Setup WebGL Renderer with Alpha & Antialiasing
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(0, 2.5, 9);
             renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(width, height);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            // 3. Setup Orbit Controls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't orbit below ground
-            controls.minDistance = 5;
-            controls.maxDistance = 15;
-
-            // 4. Setup Lighting
+            controls.maxPolarAngle = Math.PI / 2 + 0.1;
+            controls.minDistance = 4;
+            controls.maxDistance = 12;
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
             scene.add(ambientLight);
-
-            // Glowing Purple Pointlight
             const purpleLight = new THREE.PointLight(0xa855f7, 2, 20);
             purpleLight.position.set(2, 5, 3);
             scene.add(purpleLight);
-
-            // Glowing Cobalt Pointlight
             const blueLight = new THREE.PointLight(0x3b82f6, 1.5, 20);
             blueLight.position.set(-3, 3, -3);
             scene.add(blueLight);
-
-            // Base Projector Ring Underneath Crystal
-            const ringGeo = new THREE.RingGeometry(1.8, 2.0, 32);
-            const ringMat = new THREE.MeshBasicMaterial({ color: 0x7c3aed, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
+            const ringGeo = new THREE.RingGeometry(1.6, 1.8, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x7c3aed, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
             projectRings = new THREE.Mesh(ringGeo, ringMat);
             projectRings.rotation.x = Math.PI / 2;
-            projectRings.position.y = -1.8;
+            projectRings.position.y = -1.5;
             scene.add(projectRings);
-
-            // Create 3D low-poly crystalline Icosahedron Geometry
-            const geometry = new THREE.IcosahedronGeometry(1.8, 0); // detail=0 makes beautiful sharp low-poly facets
-            
-            // Standard Physical glass-like material
+            const geometry = new THREE.IcosahedronGeometry(1.5, 0);
             const material = new THREE.MeshPhysicalMaterial({
                 color: 0x6d28d9,
                 emissive: 0x2e1065,
-                roughness: 0.1,
-                metalness: 0.9,
+                roughness: 0.15,
+                metalness: 0.85,
                 transparent: true,
-                opacity: 0.65,
-                transmission: 0.6,
+                opacity: 0.7,
+                transmission: 0.5,
                 side: THREE.DoubleSide
             });
-
             crystal = new THREE.Mesh(geometry, material);
             scene.add(crystal);
-
-            // Glowing Wireframe outlines for facets
             const wireframeMat = new THREE.MeshBasicMaterial({
                 color: 0xd8b4fe,
                 wireframe: true,
                 transparent: true,
-                opacity: 0.4
+                opacity: 0.35
             });
             crystalWireframe = new THREE.Mesh(geometry, wireframeMat);
             crystal.add(crystalWireframe);
-
-            // Floating Star Particles System
-            const particleCount = 120;
+            const particleCount = 100;
             const particleGeo = new THREE.BufferGeometry();
             const positions = new Float32Array(particleCount * 3);
-
             for (let i = 0; i < particleCount * 3; i += 3) {
-                // Orbiting spherical layout coordinates
-                const radius = 2.5 + Math.random() * 2;
+                const radius = 2.2 + Math.random() * 1.8;
                 const theta = Math.random() * Math.PI * 2;
                 const phi = Math.acos((Math.random() * 2) - 1);
-
                 positions[i] = radius * Math.sin(phi) * Math.cos(theta);
                 positions[i+1] = radius * Math.sin(phi) * Math.sin(theta);
                 positions[i+2] = radius * Math.cos(phi);
             }
-
             particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            
             const particleMat = new THREE.PointsMaterial({
                 color: 0xa855f7,
-                size: 0.05,
+                size: 0.04,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.75
             });
-
             particles = new THREE.Points(particleGeo, particleMat);
             scene.add(particles);
-
-            // Start loop
             animate();
-
-            // Resize listeners
-            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('resize', onWindowResize); 
         }
-
-        // Animation Loop
         function animate() {
             requestAnimationFrame(animate);
-
-            // Smoothly rotate the crystal 
             if (crystal) {
-                crystal.rotation.y += 0.005;
-                crystal.rotation.x += 0.002;
+                crystal.rotation.y += 0.004;
+                crystal.rotation.x += 0.0015;
             }
-
-            // Spin floating particles
             if (particles) {
-                particles.rotation.y -= 0.002;
+                particles.rotation.y -= 0.0015;
             }
-
-            // Spin projector platform
             if (projectRings) {
-                projectRings.rotation.z += 0.003;
+                projectRings.rotation.z += 0.002;
             }
-
             controls.update();
             renderer.render(scene, camera);
         }
-
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
-            camera.aspect = container.clientWidth / container.clientHeight;
+            let width = container.clientWidth || 400;
+            let height = container.clientHeight || 300;
+            if (height === 0) height = 300;
+            camera.aspect = width / height;
             camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(width, height);
         }
-
-        // Switch Focused Node in Linear Array
         function selectAgent(agentId) {
             currentAgentId = agentId;
             const agent = agents[agentId];
-
-            // Toggle Card Active borders
             const cards = document.querySelectorAll('#agent-linear-array button');
             cards.forEach(card => {
                 card.className = "text-left w-full p-4 glass-panel border border-white/5 rounded-2xl hover:border-purple-500/30 hover:bg-white/2 transition-all flex justify-between items-center h-20 group relative overflow-hidden";
             });
-
             const activeCard = document.getElementById(`card-${agentId}`);
             activeCard.className = "text-left w-full p-4 glass-panel border border-purple-500/35 rounded-2xl bg-purple-950/10 hover:border-purple-400 hover:bg-purple-950/15 transition-all flex justify-between items-center h-20 group relative overflow-hidden ring-1 ring-purple-500/10 shadow-[0_0_20px_rgba(168,85,247,0.15)]";
-
-            // Update Metrics Data
             document.getElementById('widget-metric-1').innerText = agent.metric_1;
             document.getElementById('widget-metric-label-1').innerText = agent.metric_1_label;
             document.getElementById('widget-metric-label-2').innerText = agent.metric_2_label;
             document.getElementById('doughnut-center-metric').innerText = agent.center_metric;
-
             document.getElementById('center-node-title').innerText = `AI Swarm Core ${agent.name}`;
             document.getElementById('center-node-status-text').innerText = agent.statusText;
-
             document.getElementById('calendar-title').innerText = agent.calendar_title;
             document.getElementById('focused-node-header').innerText = agent.header;
-
             const inputEl = document.getElementById('user-input');
             inputEl.placeholder = `Transmit instruction packet to ${agent.name}...`;
-
-            // Update 3D Crystal material color dynamically to reflect active node theme
             if (crystal) {
                 crystal.material.color.setHex(agent.colorTheme);
                 crystal.material.emissive.setHex(agent.colorTheme);
                 crystalWireframe.material.color.setHex(agent.colorTheme);
             }
-
-            // Draw Neon Wave Chart on Canvas
             drawWaveChart(agent.chartPoints, agent.colorTheme);
-
-            // Re-render tasks, platforms, and chats
             renderTasks();
             renderPlatforms();
             renderChats();
         }
-
-        // Custom High-Fidelity Neon Spline Wave Chart
         function drawWaveChart(points, colorHex) {
             const canvas = document.getElementById('waveChartCanvas');
             const ctx = canvas.getContext('2d');
-            
-            // Handle high DPI scaling
             const rect = canvas.getBoundingClientRect();
             canvas.width = rect.width * 2;
             canvas.height = rect.height * 2;
             ctx.scale(2, 2);
-
             const width = rect.width;
             const height = rect.height;
-
             ctx.clearRect(0, 0, width, height);
-
-            // Convert Hex Color to CSS
             const hexString = '#' + colorHex.toString(16).padStart(6, '0');
-
-            // Draw Ambient area gradient under line
             const fillGrad = ctx.createLinearGradient(0, 0, 0, height);
-            fillGrad.addColorStop(0, `${hexString}33`); // 20% opacity
+            fillGrad.addColorStop(0, `${hexString}33`);
             fillGrad.addColorStop(1, `${hexString}00`);
-
             ctx.beginPath();
             ctx.moveTo(0, height);
-
             const step = width / (points.length - 1);
-            
-            // Draw smooth Bezier spline
             for (let i = 0; i < points.length; i++) {
                 const x = i * step;
                 const y = height - (points[i] / 100) * (height - 20) - 10;
-                
                 if (i === 0) {
                     ctx.lineTo(x, y);
                 } else {
@@ -820,20 +744,16 @@
                     const cpX2 = prevX + step / 2;
                     const cpY2 = y;
                     ctx.bezierCurveTo(cpX1, cpY1, cpX2, cpY2, x, y);
-                }
+                } 
             }
-
             ctx.lineTo(width, height);
             ctx.closePath();
             ctx.fillStyle = fillGrad;
             ctx.fill();
-
-            // Draw Core Neon Line with real canvas shadow glow
             ctx.beginPath();
             for (let i = 0; i < points.length; i++) {
                 const x = i * step;
                 const y = height - (points[i] / 100) * (height - 20) - 10;
-                
                 if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
@@ -846,29 +766,21 @@
                     ctx.bezierCurveTo(cpX1, cpY1, cpX2, cpY2, x, y);
                 }
             }
-
             ctx.shadowBlur = 10;
             ctx.shadowColor = hexString;
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 1.5;
             ctx.stroke();
-
-            // Secondary outer stroke glow
             ctx.shadowBlur = 20;
             ctx.strokeStyle = hexString;
             ctx.lineWidth = 3.0;
             ctx.stroke();
-
-            // Clear shadow settings
             ctx.shadowBlur = 0;
         }
-
-        // Render Platform Nodes Grid
         function renderPlatforms() {
             const agent = agents[currentAgentId];
             const grid = document.getElementById('matrix-platforms-grid');
             grid.innerHTML = '';
-
             const icons = {
                 IG: 'fa-brands fa-instagram text-rose-400',
                 X: 'fa-brands fa-twitter text-sky-400',
@@ -876,7 +788,6 @@
                 LinkedIn: 'fa-brands fa-linkedin-in text-blue-400',
                 YouTube: 'fa-brands fa-youtube text-red-500'
             };
-
             agent.platforms.forEach(plat => {
                 if(plat.name === 'N/A') {
                     grid.innerHTML += `
@@ -897,13 +808,10 @@
                 }
             });
         }
-
-        // Render Tasks Scheduler
         function renderTasks() {
             const agent = agents[currentAgentId];
             const taskContainer = document.getElementById('scheduler-tasks');
             taskContainer.innerHTML = '';
-
             agent.tasks.forEach(task => {
                 taskContainer.innerHTML += `
                     <div class="flex items-center gap-3 p-2 bg-slate-900/40 border border-white/5 rounded-xl hover:border-purple-500/20 transition-all">
@@ -917,20 +825,16 @@
                 `;
             });
         }
-
-        // Render Chats
         function renderChats() {
             const agent = agents[currentAgentId];
             const chatBox = document.getElementById('chat-messages');
             chatBox.innerHTML = '';
-
             agent.chats.forEach(msg => {
                 const isUser = msg.sender === 'user';
                 const containerClass = isUser ? 'flex justify-end' : 'flex justify-start';
                 const bubbleClass = isUser 
                     ? 'bg-slate-900/60 border border-white/5 text-slate-200 rounded-xl rounded-tr-none px-3.5 py-2.5 max-w-[85%] shadow-md text-[11px]'
                     : 'bg-purple-950/20 border border-purple-500/20 text-slate-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-[85%] shadow-md text-[11px] leading-relaxed';
-
                 chatBox.innerHTML += `
                     <div class="${containerClass}">
                         <div class="${bubbleClass}">
@@ -942,35 +846,26 @@
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-
-        // Send Message
         function handleSendMessage(e) {
             e.preventDefault();
             const input = document.getElementById('user-input');
             const val = input.value.trim();
             if (!val) return;
-
             const agent = agents[currentAgentId];
             agent.chats.push({ sender: 'user', text: val });
             renderChats();
             input.value = '';
-
             runAgentResponse(val);
         }
-
-        // Interactive Response Simulation
         function runAgentResponse(query) {
             const indicator = document.getElementById('typing-indicator');
             const indicatorText = document.getElementById('typing-text');
             const agent = agents[currentAgentId];
-
             indicatorText.innerText = `${agent.name.toUpperCase()} compiling instruction packet...`;
             indicator.classList.remove('hidden');
-
             setTimeout(() => {
                 let responseText = '';
                 const q = query.toLowerCase();
-
                 if (currentAgentId === 'jarvis') {
                     if (q.includes('health') || q.includes('vps') || q.includes('cron') || q.includes('server')) {
                         responseText = 'Swarm diagnostic compiled, sir. Background cron tasks are healthy. Health checklist is locked for 04:00 AM. System memory remains optimized at 34%.';
@@ -1006,74 +901,55 @@
                         responseText = 'UI blueprints updated, Doctor. Standing by to review next frontend branch updates.';
                     }
                 }
-
                 agent.chats.push({ sender: 'assistant', text: responseText });
                 indicator.classList.add('hidden');
                 renderChats();
             }, 1000);
         }
-
-        // Swarm controls
         function simulateBroadcast() {
             document.getElementById('modal-container').classList.remove('hidden');
         }
-
         function closeModal() {
             document.getElementById('modal-container').classList.add('hidden');
         }
-
         function submitBroadcast() {
             const title = document.getElementById('broadcast-title').value.trim();
             const desc = document.getElementById('broadcast-desc').value.trim();
             if (!title) return;
-
             closeModal();
-
             const indicator = document.getElementById('typing-indicator');
             indicatorText = document.getElementById('typing-text');
             indicatorText.innerText = "Jarvis is broadcasting technical directives across nodes...";
             indicator.classList.remove('hidden');
-
             setTimeout(() => {
                 indicator.classList.add('hidden');
-                
-                // Confirm broadcast in stream
                 agents.jarvis.chats.push({ 
                     sender: 'assistant', 
-                    text: `📢 **Swarm-Wide Broadcast Deployed:** "${title}"\n\nModules processed successfully across downstream nodes:\n*   **Janet (Node 04):** Commenced malpractice attestation scopes.\n*   **Claudia (Node 02):** Scheduled matching brand content blasts.\n*   **Melissa (Node 03):** Aligned NGN front-end designs.`
+                    text: `📢 **Swarm-Wide Broadcast Deployed:** "\${title}"\n\nModules processed successfully across downstream nodes:\n*   **Janet (Node 04):** Commenced malpractice attestation scopes.\n*   **Claudia (Node 02):** Scheduled matching brand content blasts.\n*   **Melissa (Node 03):** Aligned NGN front-end designs.`
                 });
-                
-                // Inject new task to child nodes
                 ['janet', 'claudia', 'melissa'].forEach(id => {
                     agents[id].tasks.unshift({
                         time: '18:00',
-                        title: `SWARM: ${title}`,
+                        title: `SWARM: \${title}`,
                         desc: desc || 'Linear array swarm directive alignment'
                     });
                 });
-
                 if (currentAgentId === 'jarvis') {
                     renderChats();
                 }
                 renderTasks();
-
                 document.getElementById('broadcast-title').value = '';
                 document.getElementById('broadcast-desc').value = '';
             }, 1400);
         }
-
         function simulateDiagnostic() {
             const indicator = document.getElementById('typing-indicator');
             const indicatorText = document.getElementById('typing-text');
-            
             indicatorText.innerText = "Swarm port scan and telemetry audit in progress...";
             indicator.classList.remove('hidden');
-
             setTimeout(() => {
                 indicator.classList.add('hidden');
-                
                 const diagMsg = `⚡ **Telemetry Swarm Diagnostic Complete:**\n\n*   **VPS Host:** Online (hermes.hannamedmd.com)\n*   **File Vault:** Secure (00_Provider_Credentialing_Hub flat structure compliant)\n*   **Google OAuth:** Active (6 practice profiles validated)\n*   **Composio Port:** Synced (5 Active Instagram Business Accounts)\n*   ** Swarm status optimal. Zero duplication rules maintained. **`;
-                
                 agents[currentAgentId].chats.push({ sender: 'assistant', text: diagMsg });
                 renderChats();
             }, 1500);
