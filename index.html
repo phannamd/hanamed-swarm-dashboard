@@ -538,7 +538,7 @@
                     { name: 'YouTube', val: 'Inactive', active: false, grow: '0%' }
                 ],
                 tasks: [
-                    { time: '10:00', title: 'Review NGN Front-end Portal', desc: 'Verify contract design handoff with Carlos' },
+                    { time: '10:00', title: 'Review NGN Front-end Portal', desc: 'Verify contract design hnd-off' },
                     { time: '14:00', title: 'Correct WCAG AA Contras', desc: 'Optimize active navigation states' },
                     { time: '16:30', title: 'Branding Board Synthesis', desc: 'Prepare minimalist dark assets' }
                 ],
@@ -597,12 +597,18 @@
             renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
             renderer.setSize(width, height);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2 + 0.1;
-            controls.minDistance = 4;
-            controls.maxDistance = 12;
+            try {
+                if (THREE.OrbitControls) {
+                    controls = new THREE.OrbitControls(camera, renderer.domElement);
+                    controls.enableDamping = true;
+                    controls.dampingFactor = 0.05;
+                    controls.maxPolarAngle = Math.PI / 2 + 0.1;
+                    controls.minDistance = 4;
+                    controls.maxDistance = 12;
+                }
+            } catch (err) {
+                console.warn('OrbitControls script loading failed or was blocked. Operating under custom default auto-rotation.', err);
+            }
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
             scene.add(ambientLight);
             const purpleLight = new THREE.PointLight(0xa855f7, 2, 20);
@@ -673,7 +679,9 @@
             if (projectRings) {
                 projectRings.rotation.z += 0.002;
             }
-            controls.update();
+            if (controls) {
+                controls.update();
+            }
             renderer.render(scene, camera);
         }
         function onWindowResize() {
@@ -698,12 +706,12 @@
             document.getElementById('widget-metric-label-1').innerText = agent.metric_1_label;
             document.getElementById('widget-metric-label-2').innerText = agent.metric_2_label;
             document.getElementById('doughnut-center-metric').innerText = agent.center_metric;
-            document.getElementById('center-node-title').innerText = `AI Swarm Core ${agent.name}`;
+            document.getElementById('center-node-title').innerText = 'AI Swarm Core ' + agent.name;
             document.getElementById('center-node-status-text').innerText = agent.statusText;
             document.getElementById('calendar-title').innerText = agent.calendar_title;
             document.getElementById('focused-node-header').innerText = agent.header;
             const inputEl = document.getElementById('user-input');
-            inputEl.placeholder = `Transmit instruction packet to ${agent.name}...`;
+            inputEl.placeholder = 'Transmit instruction packet to ' + agent.name + '...';
             if (crystal) {
                 crystal.material.color.setHex(agent.colorTheme);
                 crystal.material.emissive.setHex(agent.colorTheme);
@@ -726,8 +734,8 @@
             ctx.clearRect(0, 0, width, height);
             const hexString = '#' + colorHex.toString(16).padStart(6, '0');
             const fillGrad = ctx.createLinearGradient(0, 0, 0, height);
-            fillGrad.addColorStop(0, `${hexString}33`);
-            fillGrad.addColorStop(1, `${hexString}00`);
+            fillGrad.addColorStop(0, hexString + '33');
+            fillGrad.addColorStop(1, hexString + '00');
             ctx.beginPath();
             ctx.moveTo(0, height);
             const step = width / (points.length - 1);
@@ -790,21 +798,9 @@
             };
             agent.platforms.forEach(plat => {
                 if(plat.name === 'N/A') {
-                    grid.innerHTML += `
-                        <div class="p-2 bg-white/2 border border-white/5 rounded-xl text-center flex flex-col items-center justify-center h-16 opacity-30">
-                            <span class="text-[8px] font-bold text-slate-500">OFFLINE</span>
-                        </div>
-                    `;
+                    grid.innerHTML += '<div class="p-2 bg-white/2 border border-white/5 rounded-xl text-center flex flex-col items-center justify-center h-16 opacity-30"><span class="text-[8px] font-bold text-slate-500">OFFLINE</span></div>';
                 } else {
-                    grid.innerHTML += `
-                        <div class="p-2 bg-slate-900/50 border border-white/5 rounded-xl text-center flex flex-col items-center justify-between h-16 hover:border-purple-500/20 transition-all">
-                            <i class="${icons[plat.name]} text-sm"></i>
-                            <div class="mt-1">
-                                <p class="text-[8px] font-black text-white">${plat.val}</p>
-                                <p class="text-[5px] text-emerald-400 font-bold"><i class="fa-solid fa-arrow-up"></i> ${plat.grow}</p>
-                            </div>
-                        </div>
-                    `;
+                    grid.innerHTML += '<div class="p-2 bg-slate-900/50 border border-white/5 rounded-xl text-center flex flex-col items-center justify-between h-16 hover:border-purple-500/20 transition-all"><i class="' + icons[plat.name] + ' text-sm"></i><div class="mt-1"><p class="text-[8px] font-black text-white">' + plat.val + '</p><p class="text-[5px] text-emerald-400 font-bold"><i class="fa-solid fa-arrow-up"></i> ' + plat.grow + '</p></div></div>';
                 }
             });
         }
@@ -813,16 +809,7 @@
             const taskContainer = document.getElementById('scheduler-tasks');
             taskContainer.innerHTML = '';
             agent.tasks.forEach(task => {
-                taskContainer.innerHTML += `
-                    <div class="flex items-center gap-3 p-2 bg-slate-900/40 border border-white/5 rounded-xl hover:border-purple-500/20 transition-all">
-                        <div class="w-10 h-7 rounded-md bg-purple-950/50 border border-purple-500/10 flex items-center justify-center text-[8px] text-purple-300 font-extrabold shrink-0 mono-font">${task.time}</div>
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-[9px] font-black text-white truncate uppercase tracking-wider">${task.title}</h4>
-                            <p class="text-[8px] text-slate-500 font-semibold tracking-wider">${task.desc}</p>
-                        </div>
-                        <button class="text-slate-600 hover:text-white p-1"><i class="fa-solid fa-ellipsis-vertical text-[10px]"></i></button>
-                    </div>
-                `;
+                taskContainer.innerHTML += '<div class="flex items-center gap-3 p-2 bg-slate-900/40 border border-white/5 rounded-xl hover:border-purple-500/20 transition-all"><div class="w-10 h-7 rounded-md bg-purple-950/50 border border-purple-500/10 flex items-center justify-center text-[8px] text-purple-300 font-extrabold shrink-0 mono-font">' + task.time + '</div><div class="flex-1 min-w-0"><h4 class="text-[9px] font-black text-white truncate uppercase tracking-wider">' + task.title + '</h4><p class="text-[8px] text-slate-500 font-semibold tracking-wider">' + task.desc + '</p></div><button class="text-slate-600 hover:text-white p-1"><i class="fa-solid fa-ellipsis-vertical text-[10px]"></i></button></div>';
             });
         }
         function renderChats() {
@@ -835,14 +822,7 @@
                 const bubbleClass = isUser 
                     ? 'bg-slate-900/60 border border-white/5 text-slate-200 rounded-xl rounded-tr-none px-3.5 py-2.5 max-w-[85%] shadow-md text-[11px]'
                     : 'bg-purple-950/20 border border-purple-500/20 text-slate-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-[85%] shadow-md text-[11px] leading-relaxed';
-                chatBox.innerHTML += `
-                    <div class="${containerClass}">
-                        <div class="${bubbleClass}">
-                            <div class="text-[8px] font-black uppercase tracking-widest mb-1 opacity-50 mono-font text-purple-400">${isUser ? 'Principal Hanna' : agent.name}</div>
-                            <div class="font-medium">${msg.text}</div>
-                        </div>
-                    </div>
-                `;
+                chatBox.innerHTML += '<div class="' + containerClass + '"><div class="' + bubbleClass + '"><div class="text-[8px] font-black uppercase tracking-widest mb-1 opacity-50 mono-font text-purple-400">' + (isUser ? 'Principal Hanna' : agent.name) + '</div><div class="font-medium">' + msg.text + '</div></div></div>';
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -861,7 +841,7 @@
             const indicator = document.getElementById('typing-indicator');
             const indicatorText = document.getElementById('typing-text');
             const agent = agents[currentAgentId];
-            indicatorText.innerText = `${agent.name.toUpperCase()} compiling instruction packet...`;
+            indicatorText.innerText = agent.name.toUpperCase() + ' compiling instruction packet...';
             indicator.classList.remove('hidden');
             setTimeout(() => {
                 let responseText = '';
@@ -919,18 +899,18 @@
             closeModal();
             const indicator = document.getElementById('typing-indicator');
             indicatorText = document.getElementById('typing-text');
-            indicatorText.innerText = "Jarvis is broadcasting technical directives across nodes...";
+            indicatorText.innerText = 'Jarvis is broadcasting technical directives across nodes...';
             indicator.classList.remove('hidden');
             setTimeout(() => {
                 indicator.classList.add('hidden');
                 agents.jarvis.chats.push({ 
                     sender: 'assistant', 
-                    text: `📢 **Swarm-Wide Broadcast Deployed:** "\${title}"\n\nModules processed successfully across downstream nodes:\n*   **Janet (Node 04):** Commenced malpractice attestation scopes.\n*   **Claudia (Node 02):** Scheduled matching brand content blasts.\n*   **Melissa (Node 03):** Aligned NGN front-end designs.`
+                    text: '📢 **Swarm-Wide Broadcast Deployed:** "' + title + '"\n\nModules processed successfully across downstream nodes:\n*   **Janet (Node 04):** Commenced malpractice attestation scopes.\n*   **Claudia (Node 02):** Scheduled matching brand content blasts.\n*   **Melissa (Node 03):** Aligned NGN front-end designs.'
                 });
                 ['janet', 'claudia', 'melissa'].forEach(id => {
                     agents[id].tasks.unshift({
                         time: '18:00',
-                        title: `SWARM: \${title}`,
+                        title: 'SWARM: ' + title,
                         desc: desc || 'Linear array swarm directive alignment'
                     });
                 });
@@ -945,11 +925,11 @@
         function simulateDiagnostic() {
             const indicator = document.getElementById('typing-indicator');
             const indicatorText = document.getElementById('typing-text');
-            indicatorText.innerText = "Swarm port scan and telemetry audit in progress...";
+            indicatorText.innerText = 'Swarm port scan and telemetry audit in progress...';
             indicator.classList.remove('hidden');
             setTimeout(() => {
                 indicator.classList.add('hidden');
-                const diagMsg = `⚡ **Telemetry Swarm Diagnostic Complete:**\n\n*   **VPS Host:** Online (hermes.hannamedmd.com)\n*   **File Vault:** Secure (00_Provider_Credentialing_Hub flat structure compliant)\n*   **Google OAuth:** Active (6 practice profiles validated)\n*   **Composio Port:** Synced (5 Active Instagram Business Accounts)\n*   ** Swarm status optimal. Zero duplication rules maintained. **`;
+                const diagMsg = '⚡ **Telemetry Swarm Diagnostic Complete:**\n\n*   **VPS Host:** Online (hermes.hannamedmd.com)\n*   **File Vault:** Secure (00_Provider_Credentialing_Hub flat structure compliant)\n*   **Google OAuth:** Active (6 practice profiles validated)\n*   **Composio Port:** Synced (5 Active Instagram Business Accounts)\n*   ** Swarm status optimal. Zero duplication rules maintained. **';
                 agents[currentAgentId].chats.push({ sender: 'assistant', text: diagMsg });
                 renderChats();
             }, 1500);
